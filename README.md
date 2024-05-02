@@ -1,1 +1,1 @@
-**Emergency Management System
+**Lab Management System**
