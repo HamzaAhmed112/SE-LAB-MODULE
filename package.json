@@ -1,5 +1,5 @@
 {
-  "name": "erms",
+  "name": "lab",
   "version": "1.0.0",
   "description": "The purpose is to create and implement the emergency management system in a hospital",
   "main": "app.js",
