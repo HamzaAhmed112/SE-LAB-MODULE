@@ -7,9 +7,11 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-    <link rel="stylesheet" href="../css/main_style.css">
+    <link rel="stylesheet" href="../CSS/main_style.css">
+    <link rel="stylesheet" href="../CSS/sidebar.css">
+    <link rel="stylesheet" href="../CSS/View_tests.css">
 
-    <title>Document</title>
+    <title>View Tests</title>
 </head>
 
 <body>
@@ -28,41 +30,57 @@
         </div>
     </section>
     <section class="right_sec">
-        <h3>Prescription</h3>
-        <div class="pres_detail">
-            <div class="head_detail">
-                <div><span class="head">Patient Name:</span> <span class="detail">Hamza Ahmed</span>
+        <div class="grow">
+            <h3>Prescription</h3>
+            <div class="pres_detail">
+                <div class="head_detail">
+                    <div><span class="head">Patient Name:</span> <span class="detail">Hamza Ahmed</span>
+                    </div>
+                    <div>
+                        <span class="head">Doctor Name:
+                        </span> <span class="detail">Dr. Ali</span>
+                    </div>
+                    <div>
+                        <span class="head">Prescription ID:</span> <span class="detail">145233</span>
+                    </div>
                 </div>
-                <div>
-                    <span class="head">Doctor Name:
-                    </span> <span class="detail">Dr. Ali</span>
-                </div>
-                <div>
-                    <span class="head">Prescription ID:</span> <span class="detail">145233</span>
+                <div class="date">
+                    <div><span class="head">Date:</span> <span class="detail">05/05/2023</span>
+                    </div>
                 </div>
             </div>
-            <div class="date">
-                <div><span class="head">Date:</span> <span class="detail">05/05/2023</span>
+
+            <div class="test_detail">
+                <div class="test_head">
+                    <h4>TESTS</h4>
+                    <h4>COST</h4>
+                </div>
+                <div class="test_over">
+                    <div class="test">
+                        <div class="test_name">Hemoglobin A1C</div>
+                        <div class="test_cost">$15.00</div>
+                    </div>
+                    <div class="test">
+                        <div class="test_name">Lipid Panel</div>
+                        <div class="test_cost">$25.00</div>
+                    </div>
+                    <div class="test">
+                        <div class="test_name">Thyroid Function Test</div>
+                        <div class="test_cost">$50.00</div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <div class="test_detail">
+        <div class="total_bottom">
+            <div class="break"></div>
             <div class="test_head">
-                <h4>TESTS</h4>
-                <h4>COST</h4>
+                <h4>TOTAL COST</h4>
+                <!-- <h4>COST</h4> -->
+                <div class="test_cost">$90.00</div>
             </div>
-            <div class="test">
-                <div class="test_name">Hemoglobin A1C</div>
-                <div class="test_cost">$15.00</div>
-            </div>
-            <div class="test">
-                <div class="test_name">Lipid Panel</div>
-                <div class="test_cost">$25.00</div>
-            </div>
-            <div class="test">
-                <div class="test_name">Thyroid Function Test</div>
-                <div class="test_cost">$50.00</div>
+            <div class="bottom_but">
+                <button>CANCEL</button>
+                <button>PROCEED</button>
             </div>
         </div>
     </section>

@@ -10,135 +10,15 @@ html {
 * {
     padding: 0px;
     margin: 0px;
+    box-sizing: border-box;
 }
 
-body{
+body {
     background-color: #CABCB0;
     display: flex;
-    align-items: center
-}
-
-
-
-
-.left_sec{
-    width: 500px;
-    /* background-color: aqua; */
+    align-items: center;
+    /* max-height: 100vh; */
+    overflow-x: hidden;
     height: 100vh;
-}
-.logo {
-    padding: 35px 45px;
-    font-size: 2.4rem;
-    font-weight: 400;
-    color: #686868;
-    font-family: "Alata", sans-serif;
-    letter-spacing: 2px;
-}
-
-.logo span {
-    margin-right: 10px;
-    color: #ffffff;
-}
-
-.sidebar{
-    padding: 200px 80px;
-    
-    font-size: 2.4rem;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.sidebar li{
-    list-style: none;
-    padding: 15px 24px;
-    /* margin-left: 80px; */
-    display: flex;
-    align-items: center;
-}
-.sidebar li span{
-    margin-left: 44px;
-}
-.sidebar li:hover{
-    background-color: #ffffff72;
-    cursor: pointer;
-}
-
-
-
-.right_sec{
-    width: calc(100% - 520px);
-    background-color: rgb(255, 255, 255);
-    height: 93vh;
-    padding: 50px 50px;
-    box-sizing: border-box;
-}
-h3 {
-    font-size: 3.6rem;
-    font-weight: 400;
-    letter-spacing: 1px;
-    padding: 30px 8px;
-    color: #000000;
-    font-family: "Alata", sans-serif;
-}
-
-.pres_detail{
-    display: flex;
-    letter-spacing: 1px;
-}
-.head_detail div{
-    padding: 15px;
-    display: flex;
-    align-items: center;
-}
-.head{
-    color: #000000;
-    font-size: 2rem;
-    font-weight: 400;
-    width: 250px;
-    display: block;
-}
-
-.detail{
-    color: #AFA5A5;
-    font-size: 2.4rem;
-    font-weight: 400;
-    /* display: block;
-    align-items: end;
-    display: flex; */
-}
-.date{
-    margin-left: 200px;
-}
-.date div{
-    padding: 15px;
-    display: flex;
-    align-items: center;
-}
-.date .head{
-    width: 150px;
-}
-.test_head{
-    display: flex;
-    justify-content: space-between;
-    padding: 50px 40px 20px 8px;
-}
-h4 {
-    font-size: 2.4rem;
-    font-weight: 400;
-    letter-spacing: 1px;
-    /* padding: 30px 8px; */
-    color: #000000;
-}
-
-.test{
-    display: flex;
-    width: 100%;
-    padding: 20px 30px 20px 15px;
-    box-sizing: border-box;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 2.4rem;
-    letter-spacing: 1px;
-    color: #AFA5A5;
-    font-weight: 400;
+    width: 100vw;
 }
