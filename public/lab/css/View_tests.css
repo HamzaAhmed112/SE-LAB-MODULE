@@ -1,8 +1,8 @@
 
 .right_sec {
-    width: calc(100% - 520px);
+    width: calc(100% - 500px);
     background-color: rgb(255, 255, 255);
-    height: 93vh;
+    height: 100vh;
     /* max-height: 93vh; */
     padding: 50px 50px;
     box-sizing: border-box;
@@ -46,7 +46,7 @@ h3 {
 }
 
 .detail {
-    color: #AFA5A5;
+    color: #4e826d;
     font-size: 2.4rem;
     font-weight: 400;
     width: 400px;
@@ -98,7 +98,7 @@ h4 {
     justify-content: space-between;
     font-size: 2.4rem;
     letter-spacing: 1px;
-    color: #AFA5A5;
+    color: #4e826d;
     font-weight: 400;
 }
 
@@ -117,7 +117,8 @@ h4 {
 .total_bottom .test_cost {
     font-size: 2.4rem;
     letter-spacing: 1px;
-    color: #AFA5A5;
+    color: #4e826d;
+    /* color: #75BFA4; */
     font-weight: 400;
 }
 
@@ -128,19 +129,28 @@ h4 {
 }
 
 .bottom_but button {
-    background-color: #CABCB0;
-    color: #464246;
-    padding: 12px 30px;
+
+    padding: 15px 35px;
     margin: 20px;
-    width: 200px;
-    border: none;
+    min-width: 200px;
+    /* border: none; */
     font-size: 2.4rem;
     font-weight: 400;
 }
 
 .bottom_but button:hover {
-    background-color: #cabcb09d;
+    background-color: #75BFA4;
     cursor: pointer;
+}
+.pri-but{
+    background-color: #A0E0C9;
+    color: #000000;
+    border: solid #75BFA4 1px;
+}
+.sec-but{
+    border: solid black 1px;
+    background-color: #FFFFFF;
+    color: #000000;
 }
 
 @media screen and (max-height: 1400px) {
@@ -219,16 +229,6 @@ h4 {
         margin-top: 5px;
     }
 
-    .bottom_but button {
-        background-color: #CABCB0;
-        color: #464246;
-        padding: 12px 30px;
-        margin-left: 20px;
-        width: 200px;
-        border: none;
-        font-size: 2.4rem;
-        font-weight: 400;
-    }
 }
 
 @media screen and (max-height: 950px) {
