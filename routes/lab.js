@@ -13,7 +13,10 @@ const {
    inprogressssample,
    prescriptiondetail,
    totalcostbyid,
-   insertinvoice
+   insertinvoice,
+   inpendingsample,
+   incompeleteresult,
+   inserttestresult
 } = require("../controllers/lab")
 
 
@@ -23,12 +26,15 @@ router.route('/prescriptions/view').get(viewTests)
 router.route('/invoices/view').get(viewInvoice)
 
 //backened route 
+router.route('/incompeleteresult').get(incompeleteresult)
+router.route('/inpendingsample').get(inpendingsample)
 router.route('/inprogressample').get(inprogressssample)
 router.route('/prescription/:id').get(prescriptiondetail)
 router.route('/cost/:id').get(totalcostbyid)
-router.route('/invoice/:amount/:prescriptionid/:collectiontime').post(insertinvoice)
 
+router.route('/invoice/:id').get(insertinvoice)
 
+router.route('/inserttestresult/:sampleid/:fieldid/:value').post(inserttestresult)
 
 
 module.exports = router

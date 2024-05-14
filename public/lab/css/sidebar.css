@@ -1,6 +1,6 @@
 
 .left_sec {
-    width: 500px;
+    width: 400px;
     /* background-color: aqua; */
     height: 100vh;
 }
@@ -24,7 +24,7 @@
 }
 
 .sidebar {
-    padding: 200px 80px;
+    padding: 200px 50px;
 
     font-size: 2.4rem;
     width: 100%;

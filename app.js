@@ -2,9 +2,13 @@ const express = require('express')
 const path = require('path')
 const erms = require('./routes/emergency');
 const lab = require('./routes/lab')
-
+const cors = require('cors')
 const application = express();
 const PORT = process.env.PORT || 3000;
+
+
+application.use(cors());
+
 require('dotenv').config({ path: '.env' });
 //middleware
 application.use(express.static('./public'));
