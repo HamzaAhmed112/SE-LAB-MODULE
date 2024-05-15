@@ -2,21 +2,25 @@ const express = require('express')
 const path = require('path')
 const erms = require('./routes/emergency');
 const lab = require('./routes/lab')
-
-const app = express();
+const cors = require('cors')
+const application = express();
 const PORT = process.env.PORT || 3000;
 
-//middleware
-app.use(express.static('./public'));
-app.use(express.json())
 
+application.use(cors());
+
+require('dotenv').config({ path: '.env' });
+//middleware
+application.use(express.static('./public'));
+application.use(express.json())
+application.use(express.urlencoded({ extended: true }));
 
 //router
-app.use('/emergency', erms)
-app.use('/lab', lab)
+application.use('/emergency', erms)
+application.use('/', lab)
 
 
 //server
-app.listen(PORT, () => {
+application.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

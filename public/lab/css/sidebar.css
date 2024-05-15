@@ -1,26 +1,30 @@
 
 .left_sec {
-    width: 500px;
+    width: 400px;
     /* background-color: aqua; */
     height: 100vh;
 }
 
 .logo {
     padding: 35px 50px;
-    font-size: 3rem;
+    padding-left: 80px;
+    font-size: 3.2rem;
     font-weight: 400;
-    color: #686868;
+    color: #000000;
+    background-color: #A0E0C9;
     font-family: "Alata", sans-serif;
     letter-spacing: 2px;
+    width: 100%;
+    /* text-align: center; */
 }
 
 .logo span {
     margin-right: 10px;
-    color: #ffffff;
+    color: #000000;
 }
 
 .sidebar {
-    padding: 200px 80px;
+    padding: 200px 50px;
 
     font-size: 2.4rem;
     width: 100%;
@@ -30,6 +34,8 @@
 .sidebar li {
     list-style: none;
     padding: 15px 24px;
+    color: #ffffff;
+    letter-spacing: 2px;
     /* margin-left: 80px; */
     display: flex;
     align-items: center;
@@ -40,6 +46,7 @@
 }
 
 .sidebar li:hover {
-    background-color: #ffffff72;
+    /* background-color: #ffffff72; */
+    background-color: hsla(0, 0%, 100%, 0.2);
     cursor: pointer;
 }
