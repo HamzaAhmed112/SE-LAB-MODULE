@@ -16,25 +16,34 @@ const {
    insertinvoice,
    inpendingsample,
    incompeleteresult,
-   inserttestresult
+   inserttestresult,
+   TestFieldsBySampleIDAndTestName,
+   getinvoicedata,
+   inprogressssamplebuttton
 } = require("../controllers/lab")
 
 
 //routes 
 router.route('/').get(enterPrescription)
 router.route('/prescriptions/view').get(viewTests)
+
 router.route('/invoices/view').get(viewInvoice)
 
 //backened route 
+// get
 router.route('/incompeleteresult').get(incompeleteresult)
 router.route('/inpendingsample').get(inpendingsample)
 router.route('/inprogressample').get(inprogressssample)
 router.route('/prescription/:id').get(prescriptiondetail)
 router.route('/cost/:id').get(totalcostbyid)
+router.route('/testfieldsbysampleID/:sampleid/:testname').get(TestFieldsBySampleIDAndTestName)
+router.route('/invoicedata/:id').get(getinvoicedata)
 
-router.route('/invoice/:id').get(insertinvoice)
-
-router.route('/inserttestresult/:sampleid/:fieldid/:value').post(inserttestresult)
+// post
+router.route('/invoice/:id').post(insertinvoice)
+router.route('/inserttestfield').post(inserttestresult)
+router.route('/inprogressssamplebuttton/:sampleid/:testname').post(inprogressssamplebuttton)
+// router.route('/inserttestresult/:sampleid/:fieldid/:value').post(inserttestresult)
 
 
 module.exports = router
