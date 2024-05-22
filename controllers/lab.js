@@ -1,18 +1,33 @@
 const path = require('path')
 const executeQuery = require('../functions/executeQuery')
 const sql = require('mssql');
-// const{Configuration,OpenAIApi}=require('openai')
-// const{OpenAI}=require('openai')
-// const openai = new OpenAI({
-//     apiKey: process.env['OPENAI_API_KEY'], // This is the default and can be omitted
-//   });
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { response } = require('express');
 
-//   console.log(process.env['OPENAI_API_KEY'])
-// const config= new Configuration({
-//     apiKey:"sk-proj-Rrfq1c2ivkLb9Rx23sXJT3BlbkFJCfywY3Z9fhkAnUvcaUur"
-// });
+// Access your API key as an environment variable (see "Set up your API key" above)
+const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+console.log(process.env.API_KEY)
 
-// const openai=new OpenAIApi(config);
+// async function run() {
+//   // For text-only input, use the gemini-pro model
+//   const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+
+//   const prompt = "urine glouses test value 5 write in very short what is it good or bad if it bad write very short what precaution should I use to get rid of it"
+
+//   const result = await model.generateContent(prompt);
+//   const response = await result.response;
+//   const text = response.text();
+//   console.log(text);
+// }
+
+// run();
+
+
+
+
+
+
+
 
 
 
@@ -30,6 +45,8 @@ const viewInvoice = (req, res) => {
 
 
 
+
+
 const totalcostbyid = async (req, res) => {
     const _id = req.params.id
     const query = "SELECT dbo.GetTotalTestCost" + "(" + _id + ") AS TotalCost;"
@@ -37,7 +54,7 @@ const totalcostbyid = async (req, res) => {
     try {
         executeQuery(query)
             .then(rows => {
-
+                console.log(rows[0].TotalCost)
                 res.send(rows)
 
             })
@@ -51,6 +68,7 @@ const totalcostbyid = async (req, res) => {
         res.send(e).status(500)
     }
 };
+
 
 
 const formatDate = (date) => {
@@ -71,55 +89,74 @@ const formatDate = (date) => {
 
 
 
-const insertinvoice = async (req, res) => {
 
-    const prescriptionId = req.params.id
+const insertinvoice = async (req, res) => {
+    const prescriptionId = req.params.id;
     const now = new Date();
     const collectionTime = formatDate(now);
 
-
-
     try {
-        const totalCostQuery = `SELECT dbo.GetTotalTestCost(${req.params.id}) AS TotalCost`;
-        executeQuery(totalCostQuery)
-            .then(rows => {
+        // First, check if the prescription is present
+        const checkPrescriptionPresenceQuery = `
+            SELECT *
+            FROM dbo.CheckPrescriptionPresence(${prescriptionId});
+        `;
 
-                const amount = rows[0].TotalCost;
-                console.log(rows[0].TotalCost);
-                console.log(rows);
-                const query = `
-                DECLARE @InsertedTestID INT;
-                EXEC InsertInvoiceAndTestOrder ${amount}, ${prescriptionId}, '${collectionTime}', @InsertedTestID OUTPUT;
-                SELECT 'Test ID:', @InsertedTestID AS TestID;
-            `;
-                console.log(query)
-                executeQuery(query).then(row1 => {
-                    res.send(row1)
-                    console.log(row1)
-                })
-                // to redirect to html page after success 
-                // res.redirect('/html')
+        const prescriptionStatusRows = await executeQuery(checkPrescriptionPresenceQuery);
 
-            })
+        if (prescriptionStatusRows[0].PrescriptionStatus === 'Not Found') {
+            res.status(400).send('Prescription not found.');
+            return;
+        }
 
+        // Check if the invoice is already generated
+        const checkInvoiceStatusQuery = `
+            SELECT *
+            FROM dbo.CheckInvoiceStatus(${prescriptionId});
+        `;
 
-            .catch(error => {
+        const invoiceStatusRows = await executeQuery(checkInvoiceStatusQuery);
 
-                console.error('Error executing query:', error);
-                res.send(error).status(400)
-            });
+        if (invoiceStatusRows[0].InvoiceStatus === 'Found') {
+            res.status(400).send('Invoice is already generated.');
+            return;
+        }
 
-    }
-    catch (e) {
-        res.send(e).status(500)
+        // If not found, proceed to get the total cost and insert the invoice
+        const totalCostQuery = `SELECT dbo.GetTotalTestCost(${prescriptionId}) AS TotalCost;`;
+        const totalCostRows = await executeQuery(totalCostQuery);
+
+        const amount = totalCostRows[0].TotalCost;
+        console.log(totalCostRows[0].TotalCost);
+        console.log(totalCostRows);
+
+        const insertInvoiceQuery = `
+            DECLARE @InsertedTestID INT;
+            EXEC InsertInvoiceAndTestOrder ${amount}, ${prescriptionId}, '${collectionTime}', @InsertedTestID OUTPUT;
+            SELECT 'Test ID:', @InsertedTestID AS TestID;
+        `;
+
+        console.log(insertInvoiceQuery);
+
+        const insertInvoiceRows = await executeQuery(insertInvoiceQuery);
+
+        res.status(200).send(insertInvoiceRows);
+        console.log(insertInvoiceRows);
+
+        // Optionally redirect to an HTML page after success
+        // res.redirect('/html');
+    } catch (error) {
+        console.error('Error executing query:', error);
+        res.status(500).send(error);
     }
 };
 
 
 
+
 const prescriptiondetail = async (req, res) => {
     const _id = req.params.id;
-    const query = `SELECT * FROM GetPrescriptionDetails(${_id})`;
+    const query = `SELECT * FROM GetPrescriptionDetails(${_id});`;
     console.log(query);
 
     try {
@@ -165,9 +202,12 @@ const prescriptiondetail = async (req, res) => {
     }
 };
 
+
+
+
 const inprogressssample = async (req, res) => {
 
-    const query = "SELECT SampleID, Testname FROM dbo.GetSamplesInProgress();";
+    const query = "SELECT * FROM dbo.GetSamplesInProgress();";
     console.log(query);
 
     try {
@@ -191,7 +231,7 @@ const inprogressssample = async (req, res) => {
 
 const inpendingsample = async (req, res) => {
 
-    const query = "SELECT SampleID, Testname FROM dbo.GetSamplesInPending();";
+    const query = "SELECT * FROM dbo.GetSamplesInPending();";
     console.log(query);
 
     try {
@@ -210,6 +250,8 @@ const inpendingsample = async (req, res) => {
         res.send(e).status(500);
     }
 };
+
+
 
 
 const incompeleteresult = async (req, res) => {
@@ -235,53 +277,6 @@ const incompeleteresult = async (req, res) => {
 };
 
 
-const inserttestresult = async (req, res) => {
-    try {
-        // Log the received body
-        console.log('Received body:', req.body);
-
-        // Parse the object array from request body
-        const objects = req.body;
-
-        // Check if objects is an array
-        if (!Array.isArray(objects)) {
-            throw new Error("Invalid input: expected an array of objects");
-        }
-
-        // Function to execute the query
-        const executeUpdateQuery = async (sampleid, fieldid, value) => {
-            const query = `EXEC UpdateLabResultWithTimestamp @SampleID=${sampleid}, @FieldID=${fieldid}, @NewValue=${value};`;
-            console.log(query);
-            return executeQuery(query);
-        };
-
-        // Loop through the objects and execute the queries
-        const results = [];
-        for (const obj of objects) {
-            const { sampleid, fieldid, value } = obj;
-            if (sampleid && fieldid && value) {
-                try {
-                    const result = await executeUpdateQuery(sampleid, fieldid, value);
-                    results.push(result);
-                    console.log(result);
-                } catch (error) {
-                    console.error('Error executing query for:', obj, error);
-                    results.push({ error: `Error for sampleid: ${sampleid}, fieldid: ${fieldid}, value: ${value} ` });
-                }
-            } else {
-                console.error('Invalid object:', obj);
-                results.push({ error: 'Invalid object', object: obj });
-            }
-        }
-
-        // Send the aggregated results back to the client
-        res.send(results);
-
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).send({ error: 'Server error', details: error.message });
-    }
-};
 
 const TestFieldsBySampleIDAndTestName = async (req, res) => {
     const query = "SELECT * FROM dbo.GetTestFieldsBySampleIDAndTestName(" + req.params.sampleid + "," + req.params.testname + ");";
@@ -304,59 +299,70 @@ const TestFieldsBySampleIDAndTestName = async (req, res) => {
     }
 }
 
-const getinvoicedata = async (req, res) => {
-
-    const query = "select *  FROM dbo.GetInvoiceData (" + req.params.id + ");";
 
 
-    console.log(query)
+const inserttestresult = async (req, res) => {
     try {
-        const rows = await executeQuery(query);
+        // Log the received body
+        console.log('Received body:', req.body);
 
-        // Process the data to group as needed
-        const groupedData = rows.reduce((acc, row) => {
-            const key = `${ row.PatientName }-${ row.DoctorName } -${ row.PrescriptionID } -${ row.PrescriptionDate } -${ row.TotalCost }`;
-            if (!acc[key]) {
-                acc[key] = {
-                    PatientName: row.PatientName,
-                    DoctorName: row.DoctorName,
-                    PrescriptionID: row.PrescriptionID,
-                    PrescriptionDate: row.PrescriptionDate,
-                    TotalCost: row.TotalCost,
-                    TestNames: [],
-                    TestCosts: []
-                };
+        // Parse the object array from request body
+        const objects = req.body;
+
+        // Check if objects is an array
+        if (!Array.isArray(objects)) {
+            throw new Error("Invalid input: expected an array of objects");
+        }
+
+        // Function to execute the query
+        const executeUpdateQuery = async (sampleid, fieldid, value, testname) => {
+            const query = `EXEC UpdateLabResultWithTimestamp @SampleID=${sampleid}, @FieldID=${fieldid}, @NewValue=${value},@TestName='${testname}';`;
+            console.log(query);
+            return executeQuery(query);
+        };
+
+        // Loop through the objects and execute the queries
+        const results = [];
+        for (const obj of objects) {
+            const { sampleid, fieldid, value, testname } = obj;
+            if (sampleid && fieldid && value && testname) {
+                try {
+                    const result = await executeUpdateQuery(sampleid, fieldid, value, testname);
+                    results.push(result);
+                    console.log(result);
+                } catch (error) {
+                    console.error('Error executing query for:', obj, error);
+                    results.push({ error: Error`for sampleid: ${sampleid}, fieldid: ${fieldid}, value: ${value},testname:${testname}` });
+                }
+            } else {
+                console.error('Invalid object:', obj);
+                results.push({ error: 'Invalid object', object: obj });
             }
-            acc[key].TestNames.push(row.TestName);
-            acc[key].TestCosts.push(row.TestCost);
-            return acc;
-        }, {});
+        }
 
-        // Convert the grouped data back to an array
-        const result = Object.values(groupedData).map(group => ({
-            ...group,
-            TestNames: group.TestNames.join(', '),
-            TestCosts: group.TestCosts.join(', ')
-        }));
+        // Send the aggregated results back to the client
+        res.send(results);
 
-        res.status(200).send(result);
     } catch (error) {
-        console.error('Error executing query:', error);
-        res.status(400).send(error);
+        console.error('Error:', error);
+        res.status(500).send({ error: 'Server error', details: error.message });
     }
 };
 
+
+
+
 const inprogressssamplebuttton = async (req, res) => {
-  
-    const query = "EXEC UpdateTestStatusToInProgress @SampleID = "+req.params.sampleid+",@Testname="+req.params.testname+";";
+
+    const query = "EXEC UpdateTestStatusToInProgress @SampleID = " + req.params.sampleid + ",@Testname=" + req.params.testname + ";";
     console.log(query);
-    
+
     try {
         executeQuery(query)
             .then(rows => {
                 res.send(rows).status(200)
-               
-           
+
+
             })
             .catch(error => {
                 console.error('Error executing query:', error);
@@ -367,6 +373,258 @@ const inprogressssamplebuttton = async (req, res) => {
         res.send(e).status(500);
     }
 };
+
+const generatereportandai = async (req, res) => {
+    const checkbox = req.params.checkbox
+    if (checkbox == 0) {
+        const query = `SELECT * FROM dbo.GetLabResults(${req.params.sampleid} , '${req.params.testname}');`;
+        console.log(query);
+
+        try {
+            executeQuery(query)
+                .then(rows => {
+                    // Group data by SampleID and TestName
+                    const groupedData = rows.reduce((acc, row) => {
+                        const { SampleID, TestName, FieldName, NormalRange, FieldResult } = row;
+
+                        const key = `${SampleID}-${TestName}`;
+                        if (!acc[key]) {
+                            acc[key] = {
+                                SampleID,
+                                TestName,
+                                fields: []
+                            };
+                        }
+
+                        acc[key].fields.push({ FieldName, NormalRange, FieldResult });
+                        return acc;
+                    }, {});
+
+                    // Convert the grouped data object to an array
+                    const response = Object.values(groupedData);
+
+                    res.status(200).send(response);
+                })
+                .catch(error => {
+                    console.error('Error executing query:', error);
+                    res.status(400).send(error);
+                });
+        } catch (e) {
+            console.error('Error:', e);
+            res.status(500).send(e);
+        }
+
+    }
+
+
+
+    else if (checkbox == 1) {
+
+
+
+        const query = `SELECT * FROM dbo.GetLabResults(${req.params.sampleid} , '${req.params.testname}');`;
+
+
+        executeQuery(query)
+            .then(async rows => {
+                // Group data by SampleID and TestName
+                const groupedData = rows.reduce((acc, row) => {
+                    const { SampleID, TestName, FieldName, NormalRange, FieldResult } = row;
+
+                    const key = `${SampleID}-${TestName}`;
+                    if (!acc[key]) {
+                        acc[key] = {
+                            SampleID,
+                            TestName,
+                            fields: []
+                        };
+                    }
+
+                    acc[key].fields.push({ FieldName, NormalRange, FieldResult });
+                    return acc;
+                }, {});
+
+                // Convert the grouped data object to an array
+                const responseArray = Object.values(groupedData);
+
+                // Generate a single prompt using the grouped data
+                const allFieldsText = responseArray.map(item => {
+                    const { TestName, fields } = item;
+                    const fieldsText = fields.map(field => `${field.FieldName} value ${field.FieldResult}`).join(', ');
+                    return `${TestName}: ${fieldsText}`;
+                }).join('; ');
+
+                const prompt = `The following are the test results: ${allFieldsText}. Please indicate if the results are good or bad. If any results are bad, provide a very short precaution to mitigate the issue. Don't break lines, responde in one paragraph of around 60 words`;
+
+                // Call the generative AI model with the single prompt
+                const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+                console.log(prompt);
+
+                const result = await model.generateContent(prompt);
+                const response = await result.response;
+                const aiResponse = await response.text();
+
+                // Send the results back
+                res.status(200).send({
+                    data: responseArray,
+                    aiResponse: aiResponse
+                });
+            })
+            .catch(error => {
+                console.error('Error executing query:', error);
+                res.status(400).send(error);
+            });
+
+
+
+    }
+    else {
+        console.log("problem in check box")
+    }
+
+
+};
+
+
+
+
+
+const getinvoicedata = async (req, res) => {
+
+    const query = "select *  FROM dbo.GetInvoiceData (" + req.params.id + ");";
+
+
+    console.log(query)
+
+    try {
+        const rows = await executeQuery(query);
+
+        if (rows.length === 0 || (rows[0].PatientName && rows[0].PatientName === 'No ID found')) {
+            console.log('No data found for the provided ID');
+            res.status(404).send('No data found for the provided ID');
+        } else {
+            // Initialize an empty object to store grouped data
+            const groupedData = {};
+
+            // Iterate through the rows
+            rows.forEach(row => {
+                const key = `${row.PatientName}-${row.PrescriptionDate}-${row.DoctorName}-${row.PrescriptionID}`;
+
+                // If the key doesn't exist in groupedData, create it
+                if (!groupedData[key]) {
+                    groupedData[key] = {
+                        PatientName: row.PatientName,
+                        PrescriptionDate: row.PrescriptionDate,
+                        DoctorName: row.DoctorName,
+                        PrescriptionID: row.PrescriptionID,
+                        TotalCost: row.TotalCost,
+                        Tests: [] // Array to store tests
+                    };
+                }
+
+                // Add test details to the Tests array
+                groupedData[key].Tests.push({
+                    TestName: row.TestName,
+                    TestCost: row.TestCost
+                });
+            });
+
+            // Convert groupedData object into an array of values
+            const result = Object.values(groupedData);
+
+            res.status(200).send(result);
+        }
+    } catch (error) {
+        console.error('Error executing query:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+
+
+const getcompeltedtest = async (req, res) => {
+
+    const query = "SELECT * FROM dbo.GetCompletedTests(" + req.params.id + ");";
+    console.log(query);
+
+
+    try {
+        const rows = await executeQuery(query);
+
+        if (rows.length === 0 || (rows[0].PatientName && rows[0].PatientName === 'No ID found')) {
+            console.log('No data found for the provided ID');
+            res.status(404).send('No data found for the provided ID');
+        } else {
+            // Initialize an object to group data by PatientName
+            const groupedData = {};
+
+            // Iterate through the rows
+            rows.forEach(row => {
+                const patientKey = row.PatientName;
+
+                // If the patientKey doesn't exist in groupedData, create it
+                if (!groupedData[patientKey]) {
+                    groupedData[patientKey] = {
+                        PatientName: row.PatientName,
+                        Samples: {} // Object to store samples by SampleID
+                    };
+                }
+
+                // Get reference to the patient's samples object
+                const patientSamples = groupedData[patientKey].Samples;
+
+                // If the SampleID doesn't exist in patientSamples, create it
+                if (!patientSamples[row.SampleID]) {
+                    patientSamples[row.SampleID] = {
+                        SampleID: row.SampleID,
+                        Tests: {} // Object to store tests by TestName
+                    };
+                }
+
+                // Get reference to the specific sample's tests object
+                const sampleTests = patientSamples[row.SampleID].Tests;
+
+                // If the TestName doesn't exist in sampleTests, create it
+                if (!sampleTests[row.TestName]) {
+                    sampleTests[row.TestName] = {
+                        TestName: row.TestName,
+                        Fields: [] // Array to store fields
+                    };
+                }
+
+                // Add field details to the Fields array
+                sampleTests[row.TestName].Fields.push(row.FieldName);
+            });
+
+            // Convert groupedData object into an array of values
+            const result = Object.values(groupedData).map(patient => ({
+                PatientName: patient.PatientName,
+                Samples: Object.values(patient.Samples).map(sample => ({
+                    SampleID: sample.SampleID,
+                    Tests: Object.values(sample.Tests).map(test => ({
+                        TestName: test.TestName,
+                        Fields: test.Fields
+                    }))
+                }))
+            }));
+
+            res.status(200).send(result);
+        }
+    } catch (error) {
+        console.error('Error executing query:', error);
+        res.status(500).send('Internal Server Error');
+    }
+
+
+
+
+
+
+};
+
+
+
 
 module.exports = {
     enterPrescription,
@@ -380,7 +638,9 @@ module.exports = {
     incompeleteresult,
     inserttestresult,
     TestFieldsBySampleIDAndTestName,
+    inprogressssamplebuttton,
+    generatereportandai,
     getinvoicedata,
-    inprogressssamplebuttton
+    getcompeltedtest
 
 }
