@@ -5,7 +5,7 @@ const lab = require('./routes/lab')
 const cors = require('cors')
 const application = express();
 const PORT = process.env.PORT || 3000;
-
+const bodyParser = require('body-parser');
 
 application.use(cors());
 
@@ -14,6 +14,7 @@ require('dotenv').config({ path: '.env' });
 application.use(express.static('./public'));
 application.use(express.json())
 application.use(express.urlencoded({ extended: true }));
+application.use(bodyParser.json());
 
 //router
 application.use('/emergency', erms)

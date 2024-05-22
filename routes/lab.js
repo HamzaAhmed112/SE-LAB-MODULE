@@ -16,7 +16,13 @@ const {
    insertinvoice,
    inpendingsample,
    incompeleteresult,
-   inserttestresult
+   inserttestresult,
+   TestFieldsBySampleIDAndTestName,
+   inprogressssamplebuttton,
+   generatereportandai,
+   getinvoicedata,
+   getcompeltedtest 
+  
 } = require("../controllers/lab")
 
 
@@ -31,10 +37,12 @@ router.route('/inpendingsample').get(inpendingsample)
 router.route('/inprogressample').get(inprogressssample)
 router.route('/prescription/:id').get(prescriptiondetail)
 router.route('/cost/:id').get(totalcostbyid)
-
-router.route('/invoice/:id').get(insertinvoice)
-
-router.route('/inserttestresult/:sampleid/:fieldid/:value').post(inserttestresult)
-
-
+router.route('/invoice/:id').post(insertinvoice)
+router.route('/testfieldsbysampleID/:sampleid/:testname').get(TestFieldsBySampleIDAndTestName)
+// router.route('/inserttestresult/:sampleid/:fieldid/:value').post(inserttestresult)
+router.route('/inprogressssamplebuttton/:sampleid/:testname').post(inprogressssamplebuttton)
+router.route('/inserttestfield').post(inserttestresult)
+router.route('/generatereport/:sampleid/:testname/:checkbox').get(generatereportandai)
+router.route('/invoicedata/:id').get(getinvoicedata)
+router.route('/getcompeltedtest/:id').get(getcompeltedtest)
 module.exports = router
